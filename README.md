@@ -1,65 +1,75 @@
-# 🌋 Vulkan Starter App
+# Vulkan Starter App
 
-## Getting started
+A Vulkan square pyramid demo with vertex colors, depth testing, keyboard controls,
+and an ImGui overlay.
 
-You need C++ compiler, Vulkan SDK and CMake installed before you can build this project.
+## Requirements
 
-This project uses C++20 standard and thus requires either of those compilers:
-- GCC 10.X
-- Clang 10
-- Microsoft Visual Studio 2019
+- A C++20 compiler and CMake 3.20 or newer.
+- Git; CMake downloads GLFW, vk-bootstrap, Vulkan Memory Allocator, and ImGui.
+- The Vulkan SDK, including `glslc`, plus a working Vulkan driver. On macOS,
+  configure the SDK environment and MoltenVK before building and running.
+- GLM installed with its CMake package configuration (`glmConfig.cmake`). If CMake
+  cannot find it, pass `-Dglm_DIR=/path/to/glm/cmake/config/directory` when configuring.
+- Make for the `debug` and `release` presets, or Visual Studio 2022 for the MSVC presets.
 
-This is officially tested on *Windows* and *GNU/Linux platforms*, no *macOS* support yet.
-If you have a working macOS solution of this code, consider submitting a PR so others
-can build this example code without a hassle!
+## Build and run
 
-<ins>**1. Downloading the repository**</ins>
+Run these commands from the repository root on macOS or Linux:
 
-Start by cloning the repository with `git clone --depth 1 https://github.com/vladeemerr/vulkan-starter-app`
-
-This repository does not contain any submodules, it utilizes CMake's `FetchContent` feature instead.
-
-<ins>**2. Configuring the project**</ins>
-
-Run either one of the CMake lines to download dependencies and configure the project:
-
-```bash
-cmake --preset debug      # for GNU/Linux (GCC/Clang)
-cmake --preset msvc-debug # for Windows (Visual Studio 2019)
+```sh
+cmake --preset debug
+cmake --build build-debug --parallel
+./build-debug/vulkan-starter-app
 ```
 
-If you wish to build in `release` mode, change `debug` to `release`.
+For a release build, use `--preset release`, build `build-release`, and run
+`./build-release/vulkan-starter-app`.
 
-If changes are made (added/removed files), or if you want to regenerate project files, rerun the command above.
+On Windows with Visual Studio 2022:
 
-<ins>**3. Building**</ins>
-
-To build the project, use the line below. You are most likely using `debug` preset, so
-the directory that will eventually contain your build files is named `build-debug`.
-
-Likewise for `release` that directory will be named `build-release`
-
-Run one those commands, depending on which preset you chose:
-
-```bash
-cmake --build build-debug --parallel # for debug
-cmake --build build-release --parallel # for release
+```powershell
+cmake --preset msvc-debug
+cmake --build build-debug --config Debug --parallel
+.\build-debug\Debug\vulkan-starter-app.exe
 ```
 
-### Running
+For release, use `msvc-release`, `build-release`, `--config Release`, and
+`.\build-release\Release\vulkan-starter-app.exe`.
 
-`build-*` directory will contain the executable in one of the subdirectories after successful build.
+The build compiles `shaders/pyramid.vert` and `shaders/pyramid.frag` into `.spv`
+files. Keep the working directory at the repository root when launching: the
+application loads those files through relative paths.
 
-For `msvc-{debug|release}` builds output subdirectory is set to `Debug` or `Release` respectively.
-For other configurations output subdirectory is set to `vulkan-starter-app`.
+The Unix presets use Makefiles. If a build directory was previously configured
+with Ninja or another generator, move it aside before configuring with these presets.
 
-**Make sure your working directory is set to the project root!**
-Project root is where this README file resides. Otherwise, the
-code responsible for loading shaders or other resources from files will fail,
-because relative paths are used.
+## Controls
 
-### Compiling shaders
+| Keys | Action |
+| --- | --- |
+| Arrow keys | Rotate the pyramid |
+| W / A / S / D | Move the pyramid |
+| Q / E | Decrease / increase scale |
+| P | Toggle perspective and orthographic projection |
+| R | Reset the transform and projection |
 
-`CMakeLists.txt` has a build recipe for compiling shader files
-along with an application. Look for a comment in this file to see
-how to compile your shaders.
+Keyboard controls pause while ImGui captures keyboard input.
+
+## Smoke test
+
+The smoke test opens the window, renders 120 frames, and exits:
+
+```sh
+./build-debug/vulkan-starter-app --smoke-test
+```
+
+The application requests Vulkan validation layers when available. With the SDK's
+validation layer installed, enable synchronization validation for an additional check:
+
+```sh
+VK_LAYER_ENABLES=VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT ./build-debug/vulkan-starter-app --smoke-test
+```
+
+Inspect the validation output as well as the exit status; validation messages do
+not automatically make the smoke test fail.

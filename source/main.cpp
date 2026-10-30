@@ -2,6 +2,8 @@
 #include <climits>
 
 #include <iostream>
+#include <cstring>
+#include <exception>
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
@@ -21,10 +23,11 @@ constexpr char default_window_title[] = "Vulkan Starter App";
 
 GLFWwindow* glfw_window;
 
-} // namespace
+}
 
-int main() {
+int main(int argc, char** argv) {
 	int status = EXIT_SUCCESS;
+	const bool smoke_test = argc == 2 && std::strcmp(argv[1], "--smoke-test") == 0;
 
 	if (!glfwInit()) {
 		std::cerr << "Failed to initialize GLFW\n";
@@ -72,19 +75,40 @@ int main() {
 		goto err_application_init;
 	}
 
-	while (!glfwWindowShouldClose(glfw_window)) {
-		const double time = glfwGetTime();
+	try {
+		uint32_t rendered_frames = 0;
+		while (!glfwWindowShouldClose(glfw_window)) {
+			glfwPollEvents();
+			if (glfwWindowShouldClose(glfw_window)) {
+				break;
+			}
+			int framebuffer_width = 0, framebuffer_height = 0;
+			glfwGetFramebufferSize(glfw_window, &framebuffer_width, &framebuffer_height);
+			if (framebuffer_width == 0 || framebuffer_height == 0) {
+				glfwWaitEvents();
+				continue;
+			}
+			const double time = glfwGetTime();
+			ImGui_ImplGlfw_NewFrame();
 
-		glfwPollEvents();
-		ImGui_ImplGlfw_NewFrame();
+			ImGui::NewFrame();
+			application::update(time);
+			ImGui::Render();
 
-		ImGui::NewFrame();
-		application::update(time);
-		ImGui::Render();
-
-		graphics::internal::FrameData fd = graphics::internal::prepare();
-		application::render(fd);
-		graphics::internal::submitAndPresent();
+			graphics::internal::FrameData fd = graphics::internal::prepare();
+			if (fd.command_buffer == VK_NULL_HANDLE || fd.framebuffer == VK_NULL_HANDLE) {
+				status = EXIT_FAILURE;
+				break;
+			}
+			application::render(fd);
+			graphics::internal::submitAndPresent();
+			if (smoke_test && ++rendered_frames >= 120) {
+				break;
+			}
+		}
+	} catch (const std::exception& error) {
+		std::cerr << error.what() << '\n';
+		status = EXIT_FAILURE;
 	}
 
 	application::shutdown();
@@ -99,5 +123,5 @@ err_imgui_init:
 err_null_window:
 	glfwTerminate();
 
-	return 0;
+	return status;
 }

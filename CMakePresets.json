@@ -4,8 +4,10 @@
 		{
 			"name": "common",
 			"hidden": true,
-			"generator": "Ninja",
-			"cacheVariables": {}
+			"generator": "Unix Makefiles",
+			"cacheVariables": {
+				"CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+			}
 		},
 		{
 			"name": "debug",

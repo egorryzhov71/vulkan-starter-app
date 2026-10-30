@@ -1,7 +1,8 @@
 # Vulkan Starter App
 
-A Vulkan square pyramid demo with vertex colors, depth testing, keyboard controls,
-and an ImGui overlay.
+Lab 2, variant 6: a square pyramid with a movable camera and directional
+Blinn-Phong lighting. The base assignment for grade 3 includes procedural face
+normals and ImGui controls for the camera, light, ambient light, and material.
 
 ## Requirements
 
@@ -11,7 +12,8 @@ and an ImGui overlay.
   configure the SDK environment and MoltenVK before building and running.
 - GLM installed with its CMake package configuration (`glmConfig.cmake`). If CMake
   cannot find it, pass `-Dglm_DIR=/path/to/glm/cmake/config/directory` when configuring.
-- Make for the `debug` and `release` presets, or Visual Studio 2022 for the MSVC presets.
+- Make for the `debug` and `release` presets, Visual Studio 2022 for the MSVC presets,
+  or MinGW with `mingw32-make` for the MinGW presets.
 
 ## Build and run
 
@@ -37,6 +39,18 @@ cmake --build build-debug --config Debug --parallel
 For release, use `msvc-release`, `build-release`, `--config Release`, and
 `.\build-release\Release\vulkan-starter-app.exe`.
 
+On Windows with MinGW (compiler, `mingw32-make`, and Vulkan SDK tools on `PATH`):
+
+```powershell
+cmake --preset mingw-debug
+cmake --build build-debug --parallel
+.\build-debug\vulkan-starter-app.exe
+```
+
+For release, use `mingw-release`, build `build-release`, and run
+`.\build-release\vulkan-starter-app.exe`. Use a separate build directory when
+switching between MinGW and Visual Studio generators.
+
 The build compiles `shaders/pyramid.vert` and `shaders/pyramid.frag` into `.spv`
 files. Keep the working directory at the repository root when launching: the
 application loads those files through relative paths.
@@ -48,13 +62,25 @@ with Ninja or another generator, move it aside before configuring with these pre
 
 | Keys | Action |
 | --- | --- |
-| Arrow keys | Rotate the pyramid |
-| W / A / S / D | Move the pyramid |
-| Q / E | Decrease / increase scale |
+| Arrow keys or right mouse drag | Turn the camera |
+| W / A / S / D | Move the camera forward / left / back / right |
+| Q / E | Move the camera down / up |
 | P | Toggle perspective and orthographic projection |
-| R | Reset the transform and projection |
+| R | Reset the camera, lighting, material, and model |
 
-Keyboard controls pause while ImGui captures keyboard input.
+Camera controls pause while ImGui captures the corresponding keyboard or mouse
+input. Use the ImGui panel to edit camera position, orientation, field of view,
+clipping planes, light direction/color/intensity, ambient color/intensity,
+material albedo/specular color/shininess, and model transforms.
+
+## Geometry and camera tests
+
+The build includes tests for pyramid winding, procedural normals, the camera
+basis, and Vulkan projection depth:
+
+```sh
+ctest --test-dir build-debug --output-on-failure
+```
 
 ## Smoke test
 

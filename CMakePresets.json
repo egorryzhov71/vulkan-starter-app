@@ -34,6 +34,16 @@
 			"name": "msvc-release",
 			"inherits": "release",
 			"generator": "Visual Studio 17 2022"
+		},
+		{
+			"name": "mingw-debug",
+			"inherits": "debug",
+			"generator": "MinGW Makefiles"
+		},
+		{
+			"name": "mingw-release",
+			"inherits": "release",
+			"generator": "MinGW Makefiles"
 		}
 	]
 }

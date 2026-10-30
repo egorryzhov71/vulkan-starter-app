@@ -13,12 +13,12 @@
 #ifdef _MSC_VER
 #pragma warning(push)
 #pragma warning(disable: 4100 4189 4324)
-#endif // _MSC_VER
+#endif
 #define VMA_IMPLEMENTATION
 #include <vk_mem_alloc.h>
 #ifdef _MSC_VER
 #pragma warning(pop)
-#endif // _MSC_VER
+#endif
 
 #include <backends/imgui_impl_vulkan.h>
 
@@ -388,7 +388,7 @@ bool rebuildSwapchain(uint32_t width, uint32_t height) {
 	return true;
 }
 
-} // namespace
+}
 
 Context context;
 
@@ -590,7 +590,6 @@ bool initialize(GLFWwindow* const window) {
 		.pDepthStencilAttachment = &render_pass_depth_attachment,
 	};
 
-	// Wait for image acquisition and order layout transitions before color/depth writes.
 	const VkSubpassDependency render_pass_dependency = {
 		.srcSubpass = VK_SUBPASS_EXTERNAL,
 		.dstSubpass = 0,
